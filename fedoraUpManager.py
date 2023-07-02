@@ -1,5 +1,6 @@
 import subprocess
 import getpass
+import time
 
 
 # Check for root privileges and ask for the password if need
