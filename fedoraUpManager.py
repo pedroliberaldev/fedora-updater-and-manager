@@ -40,13 +40,20 @@ def check_packages_updates():
         print("Checking for package updates...")
 
         # Try to execute user-selected packages installation
+        updates_execution = subprocess.Popen(["sudo", "dnf", "-y", "upgrade", "--refresh"], stdout=subprocess.PIPE,
+                                             universal_newlines=True)
+
+        for output in updates_execution.stdout:
+            print(output, end='')
+
+        updates_execution.wait()  # Espera a finalização do subprocesso
+
+        # Try to execute user-selected packages installation
         if updates_execution.returncode == 0:
             print(">>>   All packages are up to date!   <<<")
-            print(updates_execution.stdout)
             return 0
         else:
             print(">>>   ERROR: System update failed   <<<")
-            print(updates_execution.stderr)
             return 1
     except subprocess.CalledProcessError as error:
         print(error.output)
