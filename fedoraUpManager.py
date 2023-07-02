@@ -25,9 +25,9 @@ def check_for_root():
             else:
                 time.sleep(3)
                 print("[ ERROR!! ] -> Incorrect password!")
-                return 1
     except subprocess.CalledProcessError as error:
         print(error.output)
+        return 1
 
 
 # Perform a packages update
