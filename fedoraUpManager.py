@@ -34,8 +34,6 @@ def check_for_root():
 def check_packages_updates():
     check_for_root()
 
-    updates_execution = subprocess.run(["sudo", "dnf", "-y", "upgrade", "--refresh"], capture_output=True, text=True)
-
     try:
         print("Checking for package updates...")
 
