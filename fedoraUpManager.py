@@ -5,124 +5,148 @@ import time
 
 # Check for root privileges and ask for the password if necessary
 def check_for_root():
-    # Check for root subprocess (return a string)
+    # Check if the program is running as root
     root_check = subprocess.run(["id", "-u"], capture_output=True, text=True).stdout.strip()
 
-    # Check for root subprocess
+    # Check for sudo root privileges
     sudo_check = subprocess.run(["sudo", "-n", "true"], capture_output=True).returncode
 
-    # Check for root access or if password is cached (if cache timestamp has not expired yet)
-    try:
-        # Check for root user or privileges by sudo
-        if root_check == "0" or sudo_check == 0:
-            return 0
-        else:
-            print("[ NOTICE! ] -> Please, run me as root!")
-            password = getpass.getpass("[ Trusted ] -> Specify the root password:")
+    # In case of the program is running as normal user, ask for the sudo password
+    if not int(root_check) or not sudo_check:
+        print("[ NOTICE ] -> Please, run me as root!")
 
-            if subprocess.run(["sudo", "-S", "true"], input=password, capture_output=True, text=True).returncode != 0:
+        try:
+            # Receive the sudo password
+            password = getpass.getpass("[ Trusted ] -> Specify the root password:")
+        except Exception as passError:
+            print(f"[ ERROR!! ] -> {passError}")
+        else:
+            # Verify sudo root privileges after password entry and return 1 if unsuccessful
+            if not subprocess.run(["sudo", "-S", "true"], input=password, capture_output=True, text=True).returncode:
                 time.sleep(3)
                 print("[ ERROR!! ] -> Incorrect password!")
                 return 1
-    except subprocess.CalledProcessError as error:
-        print(error.output)
-    else:
-        return 0
+
+    # In case of successful sudo password input, return 0
+    return 0
 
 
-# Perform a packages update
+# Perform a dnf packages update
 def check_dnf_updates():
     try:
         print("=> Proceeding sudo dnf -y upgrade --refresh...")
 
-        # Try to execute user-selected packages installation
+        # Try to execute a dnf system update
         dnf_execution = subprocess.Popen(["sudo", "dnf", "-y", "upgrade", "--refresh"], stdout=subprocess.PIPE,
                                          universal_newlines=True)
 
+        # Print each subprocess line return (real time output)
         for output in dnf_execution.stdout:
             print(output, end='')
 
-        dnf_execution.wait()  # Wait for the subprocess to finish
-
-        # Try to execute user-selected packages installation
-        if dnf_execution.returncode == 0:
-            print(">>>   All packages are up to date!   <<<")
-            return 0
-        else:
-            print(">>>   ERROR: System update failed   <<<")
+        # Doesn't allow the program to continue before subprocess finish
+        dnf_execution.wait()
+    except subprocess.CalledProcessError as dnfError:
+        print(f"[ ERROR!! ] -> {dnfError.output}")
+        return 1
+    else:
+        # Verify if DNF update was successfully finished by return code
+        if not dnf_execution.returncode:
+            print("[ ERROR!! ] -> DNF update failed!")
             return 1
-    except subprocess.CalledProcessError as error:
-        print(error.output)
+        else:
+            print("[ SUCCESS ] -> DNF update finished!")
+            return 0
 
 
 def check_flatpak_updates():
     try:
         print("=> Proceeding flatpak -y update...")
 
-        # Try to execute user-selected packages installation
+        # Try to execute a flatpak system update
         flatpak_execution = subprocess.Popen(["flatpak", "-y", "update"], stdout=subprocess.PIPE,
                                              universal_newlines=True)
 
+        # Print each subprocess line return (real time output)
         for output in flatpak_execution.stdout:
             print(output, end='')
 
-        flatpak_execution.wait()  # Wait for the subprocess to finish
-
-        # Try to execute user-selected packages installation
-        if flatpak_execution.returncode == 0:
-            print(">>>   All packages are up to date!   <<<")
-            return 0
-        else:
-            print(">>>   ERROR: System update failed   <<<")
+        # Doesn't allow the program to continue before subprocess finish
+        flatpak_execution.wait()
+    except subprocess.CalledProcessError as flatpakError:
+        print(f"[ ERROR!! ] -> {flatpakError.output}")
+        return 1
+    else:
+        # Verify if flatpak update was successfully finished by return code
+        if not flatpak_execution.returncode:
+            print("[ ERROR!! ] -> Flatpak update failed!")
             return 1
-    except subprocess.CalledProcessError as error:
-        print(error.output)
+        else:
+            print("[ SUCCESS ] -> Flatpak update finished!")
+            return 0
 
 
 def check_firmware_updates():
-    try:
-        print("=> Proceeding firmware upgrade commands...")
+    print("=> Proceeding firmware upgrade commands...")
 
-        print("  * sudo fwupdmgr refresh --force...")
-        # Try to ...
-        firmware_refresh_execution = subprocess.Popen(["sudo", "fwupdmgr", "-y", "--force"], stdout=subprocess.PIPE,
+    try:
+        print("   * sudo fwupdmgr refresh --force...")
+
+        # Try to execute a firmware refresh
+        firmware_refresh_execution = subprocess.Popen(["sudo", "fwupdmgr", "refresh", "--force"],
+                                                      stdout=subprocess.PIPE,
                                                       universal_newlines=True)
 
-        for output in firmware_refresh_execution.stdout:
-            print(output, end='')
+        # Print each subprocess line return (real time output)
+        for output_firmware_refresh in firmware_refresh_execution.stdout:
+            print(output_firmware_refresh, end='')
 
-        firmware_refresh_execution.wait()  # Wait for the subprocess to finish
+            # Doesn't allow the program to continue before subprocess finish
+            firmware_refresh_execution.wait()
+    except subprocess.CalledProcessError as firmwareRefreshError:
+        print(f"[ ERROR!! ] -> {firmwareRefreshError.output}")
+        return 1
+    else:
+        try:
+            print("   * sudo fwupdmgr get-updates...")
 
-        print("  * sudo fwupdmgr get-updates...")
-        # Try to ...
-        firmware_get_updates_execution = subprocess.Popen(["sudo", "fwupdmgr", "get-updates"], stdout=subprocess.PIPE,
-                                                          universal_newlines=True)
+            # Try to execute a firmware get updates
+            firmware_get_updates_execution = subprocess.Popen(["sudo", "fwupdmgr", "get-updates"],
+                                                              stdout=subprocess.PIPE,
+                                                              universal_newlines=True)
 
-        for output in firmware_get_updates_execution.stdout:
-            print(output, end='')
+            # Print each subprocess line return (real time output)
+            for output_firmware_get_updates in firmware_get_updates_execution.stdout:
+                print(output_firmware_get_updates, end='')
 
-        firmware_get_updates_execution.wait()  # Wait for the subprocess to finish
-
-        print("  * sudo fwupdmgr update...")
-        # Try to ...
-        firmware_update_execution = subprocess.Popen(["sudo", "fwupdmgr", "update"], stdout=subprocess.PIPE,
-                                                     universal_newlines=True)
-
-        for output in firmware_update_execution.stdout:
-            print(output, end='')
-
-        firmware_update_execution.wait()  # Wait for the subprocess to finish
-
-        # Try to execute user-selected packages installation
-        if firmware_refresh_execution.returncode == 0 and firmware_get_updates_execution.returncode == 0 and \
-                firmware_update_execution.returncode == 0:
-            print(">>>   All packages are up to date!   <<<")
-            return 0
-        else:
-            print(">>>   ERROR: System update failed   <<<")
+        except subprocess.CalledProcessError as firmwareGetUpdatesError:
+            print(f"[ ERROR!! ] -> {firmwareGetUpdatesError.output}")
             return 1
-    except subprocess.CalledProcessError as error:
-        print(error.output)
+        else:
+            try:
+                print("   * sudo fwupdmgr update...")
+
+                # Try to execute a firmware get updates
+                firmware_update_execution = subprocess.Popen(["sudo", "fwupdmgr", "update"],
+                                                             stdout=subprocess.PIPE,
+                                                             universal_newlines=True)
+
+                # Print each subprocess line return (real time output)
+                for output_firmware_update in firmware_update_execution.stdout:
+                    print(output_firmware_update, end='')
+
+            except subprocess.CalledProcessError as firmwareUpdateError:
+                print(f"[ ERROR!! ] -> {firmwareUpdateError.output}")
+                return 1
+            else:
+                # Verify if firmware update was successfully finished by return code for each step
+                if not firmware_refresh_execution.returncode or not firmware_get_updates_execution.returncode \
+                        or not firmware_update_execution.returncode:
+                    print("[ ERROR!! ] -> Firmware refresh failed!")
+                    return 1
+                else:
+                    print("[ SUCCESS ] -> Firmware refresh finished!")
+                    return 0
 
 
 def check_updates():
