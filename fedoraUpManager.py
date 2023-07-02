@@ -89,6 +89,7 @@ def check_flatpak_updates():
 def check_firmware_updates():
     print("=> Proceeding firmware upgrade commands...")
 
+    # Firmware refresh section
     try:
         print("   * sudo fwupdmgr refresh --force...")
 
@@ -107,6 +108,7 @@ def check_firmware_updates():
         print(f"[ ERROR!! ] -> {firmwareRefreshError.output}")
         return 1
     else:
+        # Firmware get updates section
         try:
             print("   * sudo fwupdmgr get-updates...")
 
@@ -123,6 +125,7 @@ def check_firmware_updates():
             print(f"[ ERROR!! ] -> {firmwareGetUpdatesError.output}")
             return 1
         else:
+            # Firmware update section
             try:
                 print("   * sudo fwupdmgr update...")
 
