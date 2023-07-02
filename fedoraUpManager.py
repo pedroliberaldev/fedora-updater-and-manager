@@ -22,7 +22,7 @@ def check_for_root():
             print(f"[ ERROR!! ] -> {passError}")
         else:
             # Verify sudo root privileges after password entry and return 1 if unsuccessful
-            if not subprocess.run(["sudo", "-S", "true"], input=password, capture_output=True, text=True).returncode:
+            if 0 != subprocess.run(["sudo", "-S", "true"], input=password, capture_output=True, text=True).returncode:
                 time.sleep(3)
                 print("[ ERROR!! ] -> Incorrect password!")
                 return 1
@@ -51,7 +51,7 @@ def check_dnf_updates():
         return 1
     else:
         # Verify if DNF update was successfully finished by return code
-        if not dnf_execution.returncode:
+        if 0 != dnf_execution.returncode:
             print("[ ERROR!! ] -> DNF update failed!")
             return 1
         else:
@@ -78,7 +78,7 @@ def check_flatpak_updates():
         return 1
     else:
         # Verify if flatpak update was successfully finished by return code
-        if not flatpak_execution.returncode:
+        if 0 != flatpak_execution.returncode:
             print("[ ERROR!! ] -> Flatpak update failed!")
             return 1
         else:
@@ -143,8 +143,8 @@ def check_firmware_updates():
                 return 1
             else:
                 # Verify if firmware update was successfully finished by return code for each step
-                if not firmware_refresh_execution.returncode or not firmware_get_updates_execution.returncode \
-                        or not firmware_update_execution.returncode:
+                if 0 != firmware_refresh_execution.returncode or 0 != firmware_get_updates_execution.returncode \
+                        or 0 != firmware_update_execution.returncode:
                     print("[ ERROR!! ] -> Firmware refresh failed!")
                     return 1
                 else:
