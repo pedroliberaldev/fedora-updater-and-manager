@@ -1,4 +1,5 @@
 import subprocess
+import getpass
 
 
 # Check for root privileges and ask for the password if need
@@ -16,7 +17,7 @@ def initialCheck():
             return 0
         else:
             print("[ NOTICE! ] -> Please, run me as root!")
-            password = input(" [ Trusted ] -> Specify the root password:")
+            password = getpass.getpass(" [ Trusted ] -> Specify the root password:")
 
             if subprocess.run(["sudo", "-S", "true"], input=password, capture_output=True, text=True).returncode == 0:
                 return 0
