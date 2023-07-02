@@ -34,18 +34,19 @@ def check_for_root():
 def check_packages_updates():
     check_for_root()
 
-    # Check for packages update using the DNF system subprocess
-    check_dnf = subprocess.run(["sudo", "dnf", "-y", "upgrade", "--refresh"], capture_output=True).returncode
+    updates_execution = subprocess.run(["sudo", "dnf", "-y", "upgrade", "--refresh"], capture_output=True, text=True)
 
     try:
         print("Checking for package updates...")
 
         # Try to execute user-selected packages installation
-        if subprocess.run(["sudo", "dnf", "-y", "upgrade", "--refresh"], capture_output=True).returncode == 0:
+        if updates_execution.returncode == 0:
             print(">>>   All packages are up to date!   <<<")
+            print(updates_execution.stdout)
             return 0
         else:
             print(">>>   ERROR: System update failed   <<<")
+            print(updates_execution.stderr)
             return 1
     except subprocess.CalledProcessError as error:
         print(error.output)
