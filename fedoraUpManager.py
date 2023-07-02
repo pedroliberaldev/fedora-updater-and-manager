@@ -20,14 +20,14 @@ def check_for_root():
             print("[ NOTICE! ] -> Please, run me as root!")
             password = getpass.getpass("[ Trusted ] -> Specify the root password:")
 
-            if subprocess.run(["sudo", "-S", "true"], input=password, capture_output=True, text=True).returncode == 0:
-                return 0
-            else:
+            if subprocess.run(["sudo", "-S", "true"], input=password, capture_output=True, text=True).returncode != 0:
                 time.sleep(3)
                 print("[ ERROR!! ] -> Incorrect password!")
+                return 1
     except subprocess.CalledProcessError as error:
         print(error.output)
-        return 1
+    else:
+        return 0
 
 
 # Perform a packages update
