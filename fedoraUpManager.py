@@ -4,7 +4,7 @@ import time
 
 
 # Check for root privileges and ask for the password if need
-def initialCheck():
+def check_for_root():
     # Check for root subprocess (return a string)
     root_check = subprocess.run(["id", "-u"], capture_output=True, text=True).stdout.strip()
 
@@ -31,7 +31,9 @@ def initialCheck():
 
 
 # Perform a packages update
-def checkPackageUpdates():
+def check_packages_updates():
+    check_for_root()
+
     # Check for packages update using the DNF system subprocess
     check_dnf = subprocess.run(["sudo", "dnf", "-y", "upgrade", "--refresh"], capture_output=True).returncode
 
@@ -49,5 +51,4 @@ def checkPackageUpdates():
         print(error.output)
 
 
-initialCheck()
-checkPackageUpdates()
+check_packages_updates()
