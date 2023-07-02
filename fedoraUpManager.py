@@ -39,7 +39,7 @@ def checkPackageUpdates():
         print("Checking for package updates...")
 
         # Try to execute user-selected packages installation
-        if check_dnf == 0:
+        if subprocess.run(["sudo", "dnf", "-y", "upgrade", "--refresh"], capture_output=True).returncode == 0:
             print(">>>   All packages are up to date!   <<<")
             return 0
         else:
