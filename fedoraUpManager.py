@@ -121,6 +121,9 @@ def check_firmware_updates():
             for output_firmware_get_updates in firmware_get_updates_execution.stdout:
                 print(output_firmware_get_updates, end='')
 
+                # Doesn't allow the program to continue before subprocess finish
+                firmware_get_updates_execution.wait()
+
         except subprocess.CalledProcessError as firmwareGetUpdatesError:
             print(f"[ ERROR!! ] -> {firmwareGetUpdatesError.output}")
             return 1
@@ -137,6 +140,9 @@ def check_firmware_updates():
                 # Print each subprocess line return (real time output)
                 for output_firmware_update in firmware_update_execution.stdout:
                     print(output_firmware_update, end='')
+
+                    # Doesn't allow the program to continue before subprocess finish
+                    firmware_update_execution.wait()
 
             except subprocess.CalledProcessError as firmwareUpdateError:
                 print(f"[ ERROR!! ] -> {firmwareUpdateError.output}")
