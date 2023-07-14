@@ -148,6 +148,7 @@ def check_firmware_updates():
                 print(f"[ ERROR!! ] -> {firmwareUpdateError.output}")
                 return 1
             else:
+                # Verificar
                 # Verify if firmware update was successfully finished by return code for each step
                 if 0 != firmware_refresh_execution.returncode or 0 != firmware_get_updates_execution.returncode \
                         or 0 != firmware_update_execution.returncode:
